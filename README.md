@@ -265,42 +265,72 @@ See [Search Tools Guide](https://docs.claude-mem.ai/usage/search-tools) for deta
 
 ---
 
-## Date-Range Activity Reports
+## Tired of guessing what you actually shipped this month?
 
-Generate work reports filtered by time period from the claude-mem SQLite database. Useful for weekly reviews, monthly summaries, quarterly retrospectives, or any custom date range.
+Claude-Mem already auto-records every session in the background. Now it gives you the receipts.
+
+One command pulls a clean work report for any date range - weekly, monthly, quarterly, or custom. Filter by project. Export markdown for your boss, CSV for your spreadsheet, or JSON for your dashboard. The data is already there. This script just turns it into something you can send.
+
+### Just ask Claude (or any LLM with this repo)
+
+Drop these prompts into your AI assistant. It will run the script and hand you the report:
+
+```
+"Give me a work report for the last 7 days using claude-mem."
+"Generate a monthly summary of my coding sessions across all projects."
+"Build a quarterly retrospective for project {name} - export as CSV."
+"Show me every session between 2026-01-01 and 2026-03-31."
+```
+
+### Or run it yourself
 
 ```bash
-# Quick presets
+# Quick presets - one flag, one report
 ./scripts/date-report.sh --week        # Last 7 days
 ./scripts/date-report.sh --month       # Last 30 days
 ./scripts/date-report.sh --quarter     # Last 90 days
 ./scripts/date-report.sh --year        # Last 365 days
 
-# Custom ranges
+# Custom date ranges
 ./scripts/date-report.sh --since 2026-04-01
 ./scripts/date-report.sh --between 2026-01-01 2026-03-31
 
-# Filter by project
-./scripts/date-report.sh --month --project myproject
+# Narrow to one project
+./scripts/date-report.sh --month --project {name}
 
-# Output formats
-./scripts/date-report.sh --week --format markdown   # default
-./scripts/date-report.sh --week --format csv        # spreadsheet-friendly
-./scripts/date-report.sh --week --format json       # programmatic use
+# Output format - pick your weapon
+./scripts/date-report.sh --week --format markdown   # default - human readable
+./scripts/date-report.sh --week --format csv        # spreadsheet ready
+./scripts/date-report.sh --week --format json       # feed it to anything
+
+# Save it for the record
+./scripts/date-report.sh --week > weekly-report-$(date +%Y-%m-%d).md
 ```
 
-Output includes:
+Reports include:
 - Summary stats (sessions, observations, projects touched)
-- Activity by project (count breakdown)
+- Activity by project breakdown
 - Recent sessions with titles and observation counts
 
 Reads from: `~/.claude-mem/claude-mem.db` (or `$CLAUDE_MEM_DB` env var).
 
-Pipe to a file to archive:
+---
 
-```bash
-./scripts/date-report.sh --week > weekly-report-$(date +%Y-%m-%d).md
+## How do you record your sessions?
+
+You don't. That's the magic.
+
+Claude-Mem captures every tool call, every file read, every code change, every observation - automatically, in the background, while you work. No setup. No flags. No prompts. The SQLite database fills itself.
+
+When you want the report, just ask:
+
 ```
+"What did I work on this week?"
+"Generate my monthly status report from claude-mem."
+"Summarise everything I did on project {name} in Q1."
+```
+
+Three months from now, when your manager asks "what have you been up to?" - you have the answer in seconds, not hours.
 
 ---
 

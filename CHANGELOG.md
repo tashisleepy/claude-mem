@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased] - 2026-04-14
+
+## Date-Range Activity Reports
+
+Stop guessing what you shipped this month. Claude-Mem already auto-records every session - now it gives you the receipts in one command.
+
+### New Features
+
+- **`scripts/date-report.sh`** — generate work reports from auto-captured observations
+- **6 quick presets**: `--week`, `--month`, `--quarter`, `--year`, `--since`, `--between`
+- **Project filtering**: narrow reports to a single project with `--project NAME`
+- **3 output formats**: `markdown` (default, human readable), `csv` (spreadsheet ready), `json` (programmatic)
+- Report includes: summary stats, activity by project breakdown, recent sessions with titles + observation counts
+- Reads from `$CLAUDE_MEM_DB` env var or default `~/.claude-mem/claude-mem.db`
+- Cross-platform: works on macOS and Linux out of the box
+
+### LLM-Friendly Usage
+
+Drop these prompts into Claude or any AI assistant:
+
+```
+"Give me a work report for the last 7 days using claude-mem."
+"Generate a monthly summary of my coding sessions across all projects."
+"Build a quarterly retrospective for project {name} - export as CSV."
+"Show me every session between 2026-01-01 and 2026-03-31."
+```
+
+The LLM will execute the script and return the formatted report.
+
+---
+
 ## [12.1.0] - 2026-04-09
 
 ## Knowledge Agents

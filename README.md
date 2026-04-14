@@ -265,6 +265,45 @@ See [Search Tools Guide](https://docs.claude-mem.ai/usage/search-tools) for deta
 
 ---
 
+## Date-Range Activity Reports
+
+Generate work reports filtered by time period from the claude-mem SQLite database. Useful for weekly reviews, monthly summaries, quarterly retrospectives, or any custom date range.
+
+```bash
+# Quick presets
+./scripts/date-report.sh --week        # Last 7 days
+./scripts/date-report.sh --month       # Last 30 days
+./scripts/date-report.sh --quarter     # Last 90 days
+./scripts/date-report.sh --year        # Last 365 days
+
+# Custom ranges
+./scripts/date-report.sh --since 2026-04-01
+./scripts/date-report.sh --between 2026-01-01 2026-03-31
+
+# Filter by project
+./scripts/date-report.sh --month --project myproject
+
+# Output formats
+./scripts/date-report.sh --week --format markdown   # default
+./scripts/date-report.sh --week --format csv        # spreadsheet-friendly
+./scripts/date-report.sh --week --format json       # programmatic use
+```
+
+Output includes:
+- Summary stats (sessions, observations, projects touched)
+- Activity by project (count breakdown)
+- Recent sessions with titles and observation counts
+
+Reads from: `~/.claude-mem/claude-mem.db` (or `$CLAUDE_MEM_DB` env var).
+
+Pipe to a file to archive:
+
+```bash
+./scripts/date-report.sh --week > weekly-report-$(date +%Y-%m-%d).md
+```
+
+---
+
 ## Beta Features
 
 Claude-Mem offers a **beta channel** with experimental features like **Endless Mode** (biomimetic memory architecture for extended sessions). Switch between stable and beta versions from the web viewer UI at http://localhost:37777 → Settings.

@@ -169,24 +169,25 @@ case "$FORMAT" in
     " 2>/dev/null | sed 's/^/| /;s/|/| /g;s/$/ |/' || echo "| (no data) | - | - |"
     echo ""
 
-    # Recent sessions (top 20)
+    # Recent sessions (top 30)
+    # Schema: session_summaries has request/investigated/learned/completed columns (no 'title')
+    # Use TAB separator to avoid IFS multi-char issues with bash read
     echo "## Recent Sessions"
     echo ""
-    sqlite3 -separator '||' "$DB_PATH" "
+    sqlite3 -separator $'\t' "$DB_PATH" "
       SELECT DATE(s.created_at) as date,
-             COALESCE(s.title, 'Untitled') as title,
              s.project,
+             SUBSTR(COALESCE(s.request, 'Untitled'), 1, 120) as request,
              (SELECT COUNT(*) FROM observations o WHERE o.memory_session_id = s.memory_session_id) as obs_count
       FROM session_summaries s
       WHERE DATE(s.created_at) >= '$START_DATE' AND DATE(s.created_at) <= '$END_DATE'
       ${PROJECT_FILTER:+AND s.project = '$PROJECT_FILTER'}
       ORDER BY s.created_at DESC
       LIMIT 30
-    " 2>/dev/null | while IFS='||' read -r date title project obs; do
+    " 2>/dev/null | while IFS=$'\t' read -r date project request obs; do
       [[ -z "$date" ]] && continue
-      echo "### $date - $project"
-      echo "**Title:** $title"
-      echo "**Observations:** $obs"
+      echo "### $date - $project ($obs obs)"
+      echo "$request"
       echo ""
     done
 
@@ -196,11 +197,11 @@ case "$FORMAT" in
     ;;
 
   csv)
-    echo "date,project,title,observations"
+    echo "date,project,request,observations"
     sqlite3 -separator ',' "$DB_PATH" "
       SELECT DATE(s.created_at),
              s.project,
-             '\"' || REPLACE(COALESCE(s.title, 'Untitled'), '\"', '\"\"') || '\"',
+             '\"' || REPLACE(SUBSTR(COALESCE(s.request, 'Untitled'), 1, 200), '\"', '\"\"') || '\"',
              (SELECT COUNT(*) FROM observations o WHERE o.memory_session_id = s.memory_session_id)
       FROM session_summaries s
       WHERE DATE(s.created_at) >= '$START_DATE' AND DATE(s.created_at) <= '$END_DATE'
@@ -214,13 +215,15 @@ case "$FORMAT" in
       SELECT json_group_array(json_object(
         'date', DATE(s.created_at),
         'project', s.project,
-        'title', COALESCE(s.title, 'Untitled'),
+        'request', SUBSTR(COALESCE(s.request, 'Untitled'), 1, 200),
         'observations', (SELECT COUNT(*) FROM observations o WHERE o.memory_session_id = s.memory_session_id)
       ))
-      FROM session_summaries s
-      WHERE DATE(s.created_at) >= '$START_DATE' AND DATE(s.created_at) <= '$END_DATE'
-      ${PROJECT_FILTER:+AND s.project = '$PROJECT_FILTER'}
-      ORDER BY s.created_at DESC
+      FROM (
+        SELECT * FROM session_summaries
+        WHERE DATE(created_at) >= '$START_DATE' AND DATE(created_at) <= '$END_DATE'
+        ${PROJECT_FILTER:+AND project = '$PROJECT_FILTER'}
+        ORDER BY created_at DESC
+      ) s
     " 2>/dev/null
     ;;
 
